@@ -21,10 +21,17 @@ jobs:
     name: Parent Info
     if: ${{ inputs.meta != '' && fromJSON(inputs.meta).parent-workflow-url != '' }}
     runs-on: ubuntu-latest
+    env:
+      PARENT_WORKFLOW_REPO: ${{ fromJSON(inputs.meta).parent-workflow-repo }}
     steps:
       - name: Print parent workflow url
         run: |
-          echo 'Dispatched from workflow: [${{fromJSON(inputs.meta).parent-workflow-name}}](${{ fromJSON(inputs.meta).parent-workflow-url }})' >> $GITHUB_STEP_SUMMARY
+          if [[ -z $PARENT_WORKFLOW_REPO ]] || [[ $PARENT_WORKFLOW_REPO == $GITHUB_REPOSITORY ]]; then
+            echo 'Dispatched from workflow: [${{fromJSON(inputs.meta).parent-workflow-name}}](${{ fromJSON(inputs.meta).parent-workflow-url }})' >> $GITHUB_STEP_SUMMARY
+          else
+            echo 'Dispatched from workflow: [${{fromJSON(inputs.meta).parent-workflow-name}}](${{ fromJSON(inputs.meta).parent-workflow-url }}) in repo [${{env.PARENT_WORKFLOW_REPO}}]' >> $GITHUB_STEP_SUMMARY
+          fi
+          
 
   test:
     name: Test
