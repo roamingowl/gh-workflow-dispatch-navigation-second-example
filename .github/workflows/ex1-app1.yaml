@@ -1,0 +1,47 @@
+name: "Example 1 - App 1 - second repo"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Build the library"
+        required: true
+        default: "true"
+      test:
+        description: "Run the tests"
+        required: true
+        default: "true"
+      meta:
+        description: "Metadata"
+        required: false
+        default: ""
+
+jobs:
+  parent-info:
+    name: Parent Info
+    if: ${{ inputs.meta != '' && fromJSON(inputs.meta).parent-workflow-url != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print parent workflow url
+        run: |
+          echo 'Dispatched from workflow: [${{fromJSON(inputs.meta).parent-workflow-name}}](${{ fromJSON(inputs.meta).parent-workflow-url }})' >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    if: ${{ inputs.test == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fake test
+        shell: bash
+        run: echo "Testing..."
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fake build
+        shell: bash
+        run: echo "Bundling..."
